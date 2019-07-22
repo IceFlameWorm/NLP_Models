@@ -58,12 +58,12 @@ def load_word_vec(path):
                 continue
             lines_num += 1
             tokens = line.rstrip().split(' ')
-            vector = np.asarray([float(x) for x in tokens[1:]])
+            vector = np.asarray([float(x) for x in tokens[1:]], dtype = np.float32)
             vectors.append(vector)
             iw.append(tokens[0].strip())
 
     for i, w in enumerate(iw):
         wi[w] = i
-    emb = np.vstack(vectors)
+    emb = np.vstack(vectors).astype(np.float32)
     return iw, wi, dim, emb
 
