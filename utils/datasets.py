@@ -1,12 +1,13 @@
 import os
 import pandas as pd
 import numpy as np
+import pickle
 import torch
 from torch.utils.data import Dataset
 from .preprocess import text2ids
 
 
-class LCQMC(Dataset):
+class LCQMCDataset(Dataset):
     def __init__(self, dataset_dir,
                  max_seq_len,
                  w2i,
@@ -19,6 +20,7 @@ class LCQMC(Dataset):
         self.sep = sep
         self.charmode = charmode
         self.w2i = w2i
+        self.max_seq_len = max_seq_len
 
         if cached_dir is not None:
             self.cathed_dir = cached_dir
@@ -28,7 +30,11 @@ class LCQMC(Dataset):
     def to(self, mode = 'train', with_labels = True):
         self.mode = mode
         self.with_labels = with_labels
-        self.cached_ids_dif =  cached_ids_file = os.path.join(self.cached_dir, '{}_ids.pkl'.format_map(self.mode))
+        if self.charmode:
+            token_type = 'char'
+        else:
+            token_type = 'word'
+        self.cached_ids_dif =  cached_ids_file = os.path.join(self.cached_dir, '{}_{}_ids.pkl'.format(self.mode, token_type))
         try:
             with open(cached_ids_file, 'rb') as f:
                 ids = pickle.load(f)
