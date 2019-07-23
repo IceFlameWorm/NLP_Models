@@ -82,5 +82,5 @@ class LCQMCDataset(Dataset):
         res = {k: torch.tensor(v, dtype = torch.long) for k, v in ids_dict.items()}
         if self.with_labels:
             label = ids_dict['label']
-            res['label'] = torch.tensor(label, dtype = torch.float32)
+            res['label'] = torch.tensor(label, dtype = torch.long)
         return res
