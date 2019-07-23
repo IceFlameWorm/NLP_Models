@@ -29,7 +29,7 @@ class SiameseGRU(nn.Module):
 
         self.emb = nn.Embedding(self.vocab_size, self.emb_dim, padding_idx = 0)
         if self.emb_weights is not None:
-            self.emb.from_pretrained(self.emb_weights, freeze = self.emb_static)
+            self.emb = nn.Embedding.from_pretrained(self.emb_weights, freeze = self.emb_static)
         self.rnn = nn.GRU(self.emb_dim, self.hidden_dim,
                           bidirectional = self.bidirectional,
                           dropout = self.dropout,
@@ -44,19 +44,19 @@ class SiameseGRU(nn.Module):
 
     def forward(self, ids_1, ids_2, lens_1, lens_2):
         # 先对lens_1和lens_2排序
-        _, sorted_bidx_1 = torch.sort(lens_1, descending = True)
-        _, sorted_bidx_2 = torch.sort(lens_2, descending = True)
+        sorted_lens_1, sorted_bidx_1 = torch.sort(lens_1, descending = True)
+        sorted_lens_2, sorted_bidx_2 = torch.sort(lens_2, descending = True)
         sorted_ids_1 = ids_1[sorted_bidx_1,:]
         sorted_ids_2 = ids_2[sorted_bidx_2,:]
 
         out1 = self.emb(sorted_ids_1)
         out2 = self.emb(sorted_ids_2)
-        packed_out1 = pack_padded_sequence(out1, lens_1, batch_first = self.batch_first)
-        packed_out2 = pack_padded_sequence(out2, lens_2, batch_first = self.batch_first)
+        packed_out1 = pack_padded_sequence(out1, sorted_lens_1, batch_first = self.batch_first)
+        packed_out2 = pack_padded_sequence(out2, sorted_lens_2, batch_first = self.batch_first)
         packed_outs1, _ = self.rnn(packed_out1)
         packed_outs2, _ = self.rnn(packed_out2)
-        outs1 = pad_packed_sequence(packed_outs1)
-        outs2 = pad_packed_sequence(packed_outs2)
+        outs1, _ = pad_packed_sequence(packed_outs1, batch_first = self.batch_first)
+        outs2, _ = pad_packed_sequence(packed_outs2, batch_first = self.batch_first)
 
         # 恢复原本的顺序
         _, inv_sorted_bidx_1 = torch.sort(sorted_bidx_1)
