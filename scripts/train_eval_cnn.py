@@ -81,7 +81,7 @@ MODEL_CONFIG = {'vocab_size': len(iw),
 with open(MODEL_CONFIG_JSON, 'w') as f:
     json.dump(MODEL_CONFIG, f)
 
-TRAIN_CONFIG = {'LR': 1e-4}
+TRAIN_CONFIG = {'LR': 1e-5}
 
 with open(TRAIN_CONFIG_JSON, 'w') as f:
     json.dump(TRAIN_CONFIG, f)

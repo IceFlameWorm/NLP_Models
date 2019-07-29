@@ -39,6 +39,8 @@ if not os.path.exists(MODEL_PATH):
 
 MODEL_FILE = os.path.join(MODEL_PATH, 'model.pkl')
 RESULTS_TXT = os.path.join(MODEL_PATH, 'results.txt')
+MODEL_CONFIG_JSON = os.path.join(MODEL_PATH, 'config.json')
+TRAIN_CONFIG_JSON = os.path.join(MODEL_PATH, 'train_config.json')
 
 
 if os.path.exists(MODEL_FILE) or os.path.exists(RESULTS_TXT):
@@ -72,15 +74,23 @@ dev_loader = get_loader(dataset, 'dev')
 
 MODEL_CONFIG = {'vocab_size': len(iw),
                 'emb_dim': dim,
-                'dropout': 0.2,
+                'hidden_dim': 100,
+                'dropout': 0.5,
                 'num_layers': 1,
-                'bidirectional': True
+                'bidirectional': False
                }
 
-TRAIN_CONFIG = {'LR': 1e-5}
+with open(MODEL_CONFIG_JSON, 'w') as f:
+    json.dump(MODEL_CONFIG, f)
+
+TRAIN_CONFIG = {'LR': 1e-3}
+
+with open(TRAIN_CONFIG_JSON, 'w') as f:
+    json.dump(TRAIN_CONFIG, f)
 
 
-model = SiameseGRU(emb_weights=  torch.tensor(emb, dtype = torch.float32),
+model = SiameseGRU(
+                   emb_weights=  torch.tensor(emb, dtype = torch.float32),
                    **MODEL_CONFIG,
                   )
 his_train_loss, his_test_loss = model_train(model, train_loader, dev_loader, MODEL_FILE, **TRAIN_CONFIG)

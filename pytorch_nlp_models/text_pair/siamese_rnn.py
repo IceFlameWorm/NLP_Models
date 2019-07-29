@@ -51,7 +51,7 @@ class SiameseGRU(nn.Module):
     def _do_sp_dropout(self, out):
         out = out.permute(0, 2, 1) # B * C * T
         out = out.unsqueeze(dim = 3) # B * C * T * 1
-        out = sel.sp_dropout(out1) # B * C * T * 1
+        out = self.sp_dropout(out) # B * C * T * 1
         out = out.squeeze(dim = 3) # B * C * T
         out = out.permute(0, 2, 1) # B * T * C
         return out
@@ -67,8 +67,8 @@ class SiameseGRU(nn.Module):
         out1 = self.emb(sorted_ids_1) # B * T * C
         out2 = self.emb(sorted_ids_2)
 
-        out1 = self._do_sp_dropout(out1)
-        out2 = self._do_sp_dropout(out2)
+        # out1 = self._do_sp_dropout(out1)
+        # out2 = self._do_sp_dropout(out2)
 
         packed_out1 = pack_padded_sequence(out1, sorted_lens_1, batch_first = self.batch_first)
         packed_out2 = pack_padded_sequence(out2, sorted_lens_2, batch_first = self.batch_first)
